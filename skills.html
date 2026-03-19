@@ -135,7 +135,10 @@
   <script type="module" src="assets/js/firebase-app.js"></script>
 
   <script type="module">
-    await new Promise(r => { const i = setInterval(() => { if (window.SS) { clearInterval(i); r(); } }, 50); });
+    await new Promise(r => {
+      if (window.SS) return r();
+      const i = setInterval(() => { if (window.SS) { clearInterval(i); r(); } }, 40);
+    });
 
     const { observeAuth, logoutUser, getUserSkills, addSkill, removeSkill, SKILL_CATEGORIES } = SS;
 
@@ -153,7 +156,7 @@
       await loadSkills();
       document.getElementById("page-loader").classList.add("d-none");
       document.getElementById("page-content").classList.remove("d-none");
-      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+      if (typeof AOS !== "undefined") AOS.init({ duration: 600, easing: "ease-in-out", once: true });
     });
 
     // Load & render

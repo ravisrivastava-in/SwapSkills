@@ -35,7 +35,7 @@
   <header id="header" class="header d-flex align-items-center sticky-top">
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
       <a href="index.html" class="logo d-flex align-items-center me-auto">
-        <img src="assets/img/logo.png" alt="SwapSkills Logo">
+        <!-- <img src="assets/img/logo.png" alt="SwapSkills Logo"> -->
         <h1 class="sitename">Swap<span class="text-accent">Skills</span></h1>
       </a>
 
@@ -45,7 +45,6 @@
           <li><a href="#about">About</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="#categories">Categories</a></li>
-          <li><a href="#testimonials">Testimonials</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
@@ -56,10 +55,10 @@
         <a class="btn-getstarted" href="auth.html">Login / Register</a>
       </div>
       <!-- Dashboard link - shown when logged in -->
-      <div id="user-menu-header" style="display:none;" class="d-flex align-items-center gap-2">
+      <!-- <div id="user-menu-header" style="display:none;" class="d-flex align-items-center gap-2">
         <a href="dashboard.html" class="btn-getstarted"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
         <button id="logout-btn-header" class="btn btn-outline-danger btn-sm rounded-circle" title="Logout"><i class="bi bi-box-arrow-right"></i></button>
-      </div>
+      </div> -->
     </div>
   </header>
 
@@ -216,47 +215,6 @@
       </div>
     </section>
 
-    <!-- ======= Testimonials Section ======= -->
-    <section id="testimonials" class="testimonials section">
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Testimonials</h2>
-        <p>What our community members say about SwapSkills</p>
-      </div>
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-        <div class="init-swiper">
-          <script type="application/json" class="swiper-config">
-            { "loop": true, "speed": 600, "autoplay": { "delay": 5000 }, "slidesPerView": "auto", "pagination": { "el": ".swiper-pagination", "type": "bullets", "clickable": true } }
-          </script>
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
-                <h3>Rahul Sharma</h3><h4>Web Developer</h4>
-                <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                <p><i class="bi bi-quote quote-icon-left"></i>I traded my Python skills for guitar lessons. SwapSkills made it incredibly easy to find a perfect exchange partner!<i class="bi bi-quote quote-icon-right"></i></p>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
-                <h3>Priya Patel</h3><h4>Graphic Designer</h4>
-                <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                <p><i class="bi bi-quote quote-icon-left"></i>The matching system is brilliant. I found a partner within hours. Now I'm learning photography while teaching design!<i class="bi bi-quote quote-icon-right"></i></p>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
-                <h3>Amit Kumar</h3><h4>Data Analyst</h4>
-                <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                <p><i class="bi bi-quote quote-icon-left"></i>Real-time chat and session scheduling make coordination effortless. I've completed 10 sessions and learned so much.<i class="bi bi-quote quote-icon-right"></i></p>
-              </div>
-            </div>
-          </div>
-          <div class="swiper-pagination"></div>
-        </div>
-      </div>
-    </section>
 
     <!-- ======= Contact Section ======= -->
     <section id="contact" class="contact section light-background">
@@ -332,10 +290,15 @@
   <script src="assets/js/main.js"></script>
 
   <!-- Firebase Auth State for Header -->
+  <script type="module" src="assets/js/firebase-app.js"></script>
   <script type="module">
-    import { observeAuth, logout } from './assets/js/modules/auth.js';
+    // Wait for SS to load
+    await new Promise(r => {
+      if (window.SS) return r();
+      const i = setInterval(() => { if (window.SS) { clearInterval(i); r(); } }, 50);
+    });
 
-    observeAuth((user) => {
+    SS.observeAuth((user) => {
       const authBtns = document.getElementById('auth-buttons-header');
       const userMenu = document.getElementById('user-menu-header');
       if (user) {
@@ -348,7 +311,7 @@
     });
 
     document.getElementById('logout-btn-header')?.addEventListener('click', async () => {
-      await logout();
+      await SS.logoutUser();
       window.location.href = 'index.html';
     });
   </script>

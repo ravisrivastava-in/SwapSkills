@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Dashboard - SwapSkills</title>
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Raleway:wght@300;400;500;600;700;800;900&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/swapskills.css" rel="stylesheet">
+</head>
+<body class="index-page">
+
+  <!-- Header -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <img src="assets/img/logo.png" alt=""><h1 class="sitename">Swap<span class="text-accent">Skills</span></h1>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="dashboard.html" class="active"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+          <li><a href="skills.html"><i class="bi bi-tools me-1"></i>My Skills</a></li>
+          <li><a href="matches.html"><i class="bi bi-arrow-left-right me-1"></i>Matches</a></li>
+          <li><a href="chat.html"><i class="bi bi-chat-dots me-1"></i>Chat</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      <div class="d-flex align-items-center gap-2">
+        <button onclick="SS.toggleDarkMode()" class="btn btn-sm btn-outline-secondary rounded-circle" title="Toggle Dark Mode"><i class="bi bi-moon-fill"></i></button>
+        <button id="logout-btn" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Loader -->
+    <div id="page-loader" class="text-center py-5 mt-5">
+      <div class="spinner-border text-accent" role="status"><span class="visually-hidden">Loading…</span></div>
+      <p class="mt-2 text-muted">Loading your dashboard…</p>
+    </div>
+
+    <!-- Dashboard (hidden until data loads) -->
+    <div id="dashboard-content" class="d-none">
+
+      <!-- Welcome -->
+      <section class="section py-4 mt-3">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-md-8" data-aos="fade-right">
+              <h2>Welcome, <span id="user-display-name" class="text-accent">User</span>!</h2>
+              <p class="text-muted mb-0">Here's an overview of your skill-exchange activity.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0" data-aos="fade-left">
+              <a href="skills.html" class="btn btn-accent me-2"><i class="bi bi-plus-circle me-1"></i>Add Skills</a>
+              <a href="matches.html" class="btn btn-outline-accent"><i class="bi bi-search me-1"></i>Find Matches</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stat Cards -->
+      <section class="section py-3">
+        <div class="container">
+          <div class="row gy-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+              <div class="dashboard-stat-card p-4 rounded-4 shadow-sm text-center">
+                <i class="bi bi-lightbulb-fill fs-1 text-accent"></i>
+                <h3 id="stat-offered" class="mt-2 mb-0">0</h3>
+                <p class="text-muted mb-0">Skills Offered</p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+              <div class="dashboard-stat-card p-4 rounded-4 shadow-sm text-center">
+                <i class="bi bi-book-fill fs-1 text-warning"></i>
+                <h3 id="stat-wanted" class="mt-2 mb-0">0</h3>
+                <p class="text-muted mb-0">Skills Wanted</p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+              <div class="dashboard-stat-card p-4 rounded-4 shadow-sm text-center">
+                <i class="bi bi-arrow-left-right fs-1 text-info"></i>
+                <h3 id="stat-matches" class="mt-2 mb-0">0</h3>
+                <p class="text-muted mb-0">Active Matches</p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+              <div class="dashboard-stat-card p-4 rounded-4 shadow-sm text-center">
+                <i class="bi bi-star-fill fs-1 text-warning"></i>
+                <h3 id="stat-rating" class="mt-2 mb-0">—</h3>
+                <p class="text-muted mb-0">Avg. Rating</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile + Skills -->
+      <section class="section py-3">
+        <div class="container">
+          <div class="row gy-4">
+
+            <!-- Profile Card -->
+            <div class="col-lg-5" data-aos="fade-up">
+              <div class="card rounded-4 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4"><h5><i class="bi bi-person-circle me-2 text-accent"></i>My Profile</h5></div>
+                <div class="card-body px-4">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Display Name</label>
+                    <input type="text" class="form-control" id="profile-name" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input type="email" class="form-control" id="profile-email" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Bio</label>
+                    <textarea class="form-control" id="profile-bio" rows="3" placeholder="Tell others about yourself…"></textarea>
+                  </div>
+                  <button id="save-profile-btn" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i>Save Profile</button>
+                  <div id="profile-alert" class="alert d-none mt-2 mb-0 py-2 small"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skills Summary -->
+            <div class="col-lg-7" data-aos="fade-up" data-aos-delay="100">
+              <div class="card rounded-4 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                  <h5><i class="bi bi-tools me-2 text-accent"></i>My Skills</h5>
+                  <a href="skills.html" class="btn btn-sm btn-outline-accent">Manage Skills</a>
+                </div>
+                <div class="card-body px-4">
+                  <h6 class="fw-bold text-accent mb-2"><i class="bi bi-arrow-up-circle me-1"></i>Skills I Offer</h6>
+                  <div id="dash-offered" class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="text-muted small">No skills added yet. <a href="skills.html">Add some!</a></span>
+                  </div>
+                  <h6 class="fw-bold text-warning mb-2"><i class="bi bi-arrow-down-circle me-1"></i>Skills I Want to Learn</h6>
+                  <div id="dash-wanted" class="d-flex flex-wrap gap-2">
+                    <span class="text-muted small">No skills added yet. <a href="skills.html">Add some!</a></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Matches -->
+      <section class="section py-3 pb-5">
+        <div class="container">
+          <div class="card rounded-4 shadow-sm" data-aos="fade-up">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+              <h5><i class="bi bi-arrow-left-right me-2 text-accent"></i>Recent Matches</h5>
+              <a href="matches.html" class="btn btn-sm btn-outline-accent">View All</a>
+            </div>
+            <div class="card-body px-4" id="recent-matches">
+              <div class="empty-state"><i class="bi bi-people"></i><h5>No matches yet</h5><p>Add skills to start finding exchange partners.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer" class="footer dark-background">
+    <div class="container copyright text-center mt-4"><p>&copy; 2025 <strong>SwapSkills</strong>. All Rights Reserved.</p></div>
+  </footer>
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Firebase consolidated script -->
+  <script type="module" src="assets/js/firebase-app.js"></script>
+
+  <script type="module">
+    // Wait for SS to be available
+    await new Promise(r => { const i = setInterval(() => { if (window.SS) { clearInterval(i); r(); } }, 50); });
+
+    const { observeAuth, logoutUser, getUserProfile, updateUserProfile, listenToMatches } = SS;
+
+    // Auth guard
+    observeAuth(async (user) => {
+      if (!user) { window.location.href = "auth.html"; return; }
+
+      const profile = await getUserProfile(user.uid);
+      if (!profile) return;
+
+      // Populate UI
+      document.getElementById("user-display-name").textContent = profile.displayName || "User";
+      document.getElementById("profile-name").value  = profile.displayName || "";
+      document.getElementById("profile-email").value = profile.email || "";
+      document.getElementById("profile-bio").value   = profile.bio || "";
+      document.getElementById("stat-offered").textContent = (profile.skillsOffered || []).length;
+      document.getElementById("stat-wanted").textContent  = (profile.skillsWanted  || []).length;
+      document.getElementById("stat-rating").textContent  = profile.averageRating > 0 ? profile.averageRating + "/5" : "—";
+
+      renderBadges("dash-offered", profile.skillsOffered || [], false);
+      renderBadges("dash-wanted",  profile.skillsWanted  || [], true);
+
+      // Matches listener
+      listenToMatches(user.uid, (matches) => {
+        const accepted = matches.filter(m => m.status === "accepted");
+        document.getElementById("stat-matches").textContent = accepted.length;
+        renderRecentMatches(matches.slice(0, 5), user.uid);
+      });
+
+      // Show dashboard
+      document.getElementById("page-loader").classList.add("d-none");
+      document.getElementById("dashboard-content").classList.remove("d-none");
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    });
+
+    // Save profile
+    document.getElementById("save-profile-btn").addEventListener("click", async () => {
+      const uid = SS.auth.currentUser.uid;
+      const bio = document.getElementById("profile-bio").value.trim();
+      const res = await updateUserProfile(uid, { bio });
+      const el  = document.getElementById("profile-alert");
+      el.textContent = res.success ? "Profile updated!" : "Error: " + res.error;
+      el.className = `alert alert-${res.success ? "success" : "danger"} mt-2 mb-0 py-2 small`;
+      el.classList.remove("d-none");
+      setTimeout(() => el.classList.add("d-none"), 3000);
+    });
+
+    // Logout
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await logoutUser();
+      window.location.href = "index.html";
+    });
+
+    /* ── helpers ── */
+    function renderBadges(id, skills, isWanted) {
+      const el = document.getElementById(id);
+      if (!skills.length) { el.innerHTML = `<span class="text-muted small">No skills yet. <a href="skills.html">Add some!</a></span>`; return; }
+      el.innerHTML = skills.map(s =>
+        `<span class="skill-badge ${isWanted ? 'wanted' : ''}">${s.name} <small>(${s.category})</small></span>`
+      ).join("");
+    }
+
+    function renderRecentMatches(matches, myUid) {
+      const el = document.getElementById("recent-matches");
+      if (!matches.length) {
+        el.innerHTML = `<div class="empty-state"><i class="bi bi-people"></i><h5>No matches yet</h5><p>Add skills to start finding exchange partners.</p></div>`;
+        return;
+      }
+      el.innerHTML = matches.map(m => {
+        const other = m.users.find(u => u !== myUid);
+        const badge = { pending:'<span class="badge bg-warning text-dark">Pending</span>', accepted:'<span class="badge bg-success">Accepted</span>', rejected:'<span class="badge bg-danger">Rejected</span>' }[m.status];
+        const myTeach    = m.skillsExchange?.[myUid]  || [];
+        const theirTeach = m.skillsExchange?.[other]   || [];
+        return `<div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+          <div><strong>${m.initiator === myUid ? "You sent" : "You received"} a match request</strong> ${badge}
+          <div class="small text-muted mt-1">You teach: ${myTeach.join(", ")||"N/A"} · You learn: ${theirTeach.join(", ")||"N/A"}</div></div>
+          <a href="matches.html" class="btn btn-sm btn-outline-accent">View</a></div>`;
+      }).join("");
+    }
+  </script>
+</body>
+</html>

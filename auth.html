@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Login / Register - SwapSkills</title>
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Raleway:wght@300;400;500;600;700;800;900&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/swapskills.css" rel="stylesheet">
+</head>
+<body class="index-page">
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <img src="assets/img/logo.png" alt=""><h1 class="sitename">Swap<span class="text-accent">Skills</span></h1>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul><li><a href="index.html">Home</a></li></ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="section py-5 mt-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-5 col-md-7">
+            <div class="auth-card p-4 p-md-5 rounded-4 shadow-lg">
+              <!-- Tab Navigation -->
+              <ul class="nav nav-pills nav-justified mb-4" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="login-tab" data-bs-toggle="pill" data-bs-target="#loginForm" type="button" role="tab">Login</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="register-tab" data-bs-toggle="pill" data-bs-target="#registerForm" type="button" role="tab">Register</button>
+                </li>
+              </ul>
+
+              <!-- Alert Area -->
+              <div id="auth-alert" class="alert d-none" role="alert"></div>
+
+              <!-- Tab Content -->
+              <div class="tab-content" id="authTabContent">
+
+                <!-- Login Form -->
+                <div class="tab-pane fade show active" id="loginForm" role="tabpanel">
+                  <h3 class="text-center mb-3">Welcome Back</h3>
+                  <p class="text-center text-muted mb-4">Login to access your dashboard</p>
+                  <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control form-control-lg" id="login-email" placeholder="you@example.com" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                      <input type="password" class="form-control form-control-lg" id="login-password" placeholder="Enter your password" required>
+                      <button class="btn btn-outline-secondary toggle-pw" type="button"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </div>
+                  <button id="login-btn" class="btn btn-accent btn-lg w-100 mt-2">
+                    <span class="btn-text">Login</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                  </button>
+                  <p class="text-center mt-3 text-muted small">Don't have an account? <a href="#" onclick="document.getElementById('register-tab').click(); return false;">Register here</a></p>
+                </div>
+
+                <!-- Register Form -->
+                <div class="tab-pane fade" id="registerForm" role="tabpanel">
+                  <h3 class="text-center mb-3">Create Account</h3>
+                  <p class="text-center text-muted mb-4">Join the SwapSkills community</p>
+                  <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control form-control-lg" id="reg-name" placeholder="Your full name" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control form-control-lg" id="reg-email" placeholder="you@example.com" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                      <input type="password" class="form-control form-control-lg" id="reg-password" placeholder="Min. 6 characters" required>
+                      <button class="btn btn-outline-secondary toggle-pw" type="button"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control form-control-lg" id="reg-confirm" placeholder="Re-enter password" required>
+                  </div>
+                  <button id="register-btn" class="btn btn-accent btn-lg w-100 mt-2">
+                    <span class="btn-text">Create Account</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                  </button>
+                  <p class="text-center mt-3 text-muted small">Already have an account? <a href="#" onclick="document.getElementById('login-tab').click(); return false;">Login here</a></p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer" class="footer dark-background">
+    <div class="container copyright text-center mt-4">
+      <p>&copy; 2025 <strong>SwapSkills</strong>. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { signUp, login, observeAuth } from './assets/js/modules/auth.js';
+
+    // Redirect if already logged in
+    observeAuth((user) => {
+      if (user) window.location.href = 'dashboard.html';
+    });
+
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-pw').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = btn.previousElementSibling;
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+      });
+    });
+
+    // Show alert helper
+    function showAlert(msg, type = 'danger') {
+      const el = document.getElementById('auth-alert');
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+      el.classList.remove('d-none');
+      setTimeout(() => el.classList.add('d-none'), 5000);
+    }
+
+    // Loading state helper
+    function setLoading(btn, loading) {
+      const text = btn.querySelector('.btn-text');
+      const spinner = btn.querySelector('.spinner-border');
+      btn.disabled = loading;
+      text.classList.toggle('d-none', loading);
+      spinner.classList.toggle('d-none', !loading);
+    }
+
+    // Login handler
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      if (!email || !password) return showAlert('Please fill in all fields.');
+
+      const btn = document.getElementById('login-btn');
+      setLoading(btn, true);
+      const result = await login(email, password);
+      setLoading(btn, false);
+
+      if (result.success) {
+        window.location.href = 'dashboard.html';
+      } else {
+        showAlert(result.error);
+      }
+    });
+
+    // Register handler
+    document.getElementById('register-btn').addEventListener('click', async () => {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm').value;
+
+      if (!name || !email || !password || !confirm) return showAlert('Please fill in all fields.');
+      if (password.length < 6) return showAlert('Password must be at least 6 characters.');
+      if (password !== confirm) return showAlert('Passwords do not match.');
+
+      const btn = document.getElementById('register-btn');
+      setLoading(btn, true);
+      const result = await signUp(email, password, name);
+      setLoading(btn, false);
+
+      if (result.success) {
+        showAlert('Account created! Redirecting...', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+      } else {
+        showAlert(result.error);
+      }
+    });
+
+    // Enter key support
+    document.querySelectorAll('#loginForm input').forEach(input => {
+      input.addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('login-btn').click(); });
+    });
+    document.querySelectorAll('#registerForm input').forEach(input => {
+      input.addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('register-btn').click(); });
+    });
+  </script>
+</body>
+</html>

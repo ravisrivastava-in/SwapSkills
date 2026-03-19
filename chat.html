@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Chat - SwapSkills</title>
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Raleway:wght@300;400;500;600;700;800;900&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/swapskills.css" rel="stylesheet">
+</head>
+<body class="index-page">
+
+  <!-- Header -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <img src="assets/img/logo.png" alt=""><h1 class="sitename">Swap<span class="text-accent">Skills</span></h1>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+          <li><a href="skills.html"><i class="bi bi-tools me-1"></i>My Skills</a></li>
+          <li><a href="matches.html"><i class="bi bi-arrow-left-right me-1"></i>Matches</a></li>
+          <li><a href="chat.html" class="active"><i class="bi bi-chat-dots me-1"></i>Chat</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      <div class="d-flex align-items-center gap-2">
+        <button onclick="SS.toggleDarkMode()" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
+        <button id="logout-btn" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main" style="padding-top:0">
+    <div id="page-loader" class="text-center py-5 mt-5"><div class="spinner-border text-accent" role="status"></div></div>
+
+    <div id="chat-container" class="d-none" style="margin-top:72px">
+      <div class="container-fluid px-0">
+        <div class="row g-0">
+
+          <!-- Sidebar: list of accepted matches -->
+          <div class="col-lg-3 col-md-4 chat-sidebar bg-white" id="chat-sidebar">
+            <div class="p-3 border-bottom">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-chat-left-text me-1 text-accent"></i>Conversations</h6>
+            </div>
+            <div id="chat-contact-list">
+              <div class="text-center text-muted py-4 small">Loading conversations…</div>
+            </div>
+          </div>
+
+          <!-- Chat Area -->
+          <div class="col-lg-9 col-md-8">
+            <div class="chat-window">
+
+              <!-- Header -->
+              <div class="d-flex align-items-center justify-content-between p-3 border-bottom bg-white" id="chat-header">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="match-avatar" id="chat-avatar" style="width:40px;height:40px;font-size:1rem;display:none"></div>
+                  <div>
+                    <h6 class="mb-0 fw-bold" id="chat-partner-name">Select a conversation</h6>
+                    <small class="text-muted" id="chat-partner-skills"></small>
+                  </div>
+                </div>
+                <a href="matches.html" class="btn btn-sm btn-outline-accent d-none" id="view-match-link"><i class="bi bi-info-circle me-1"></i>Match Details</a>
+              </div>
+
+              <!-- Messages -->
+              <div class="chat-messages" id="chat-messages">
+                <div class="empty-state mt-5"><i class="bi bi-chat-dots"></i><h5>No conversation selected</h5><p>Choose a match from the sidebar to start chatting.</p></div>
+              </div>
+
+              <!-- Input -->
+              <div class="chat-input-area d-none" id="chat-input-area">
+                <div class="d-flex gap-2">
+                  <input type="text" class="form-control" id="msg-input" placeholder="Type a message…" autocomplete="off">
+                  <button class="btn btn-accent" id="send-btn"><i class="bi bi-send-fill"></i></button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="assets/js/firebase-app.js"></script>
+
+  <script type="module">
+    await new Promise(r => { const i = setInterval(() => { if (window.SS) { clearInterval(i); r(); } }, 50); });
+
+    const {
+      observeAuth, logoutUser, listenToMatches, getUserProfile,
+      sendMessage, listenToChat, stopListeningToChat
+    } = SS;
+
+    let currentUid   = null;
+    let currentName   = "";
+    let activeMatchId = null;
+    let activeChatRef = null;
+    let profileCache  = {};
+
+    // Auth guard
+    observeAuth(async (user) => {
+      if (!user) { window.location.href = "auth.html"; return; }
+      currentUid  = user.uid;
+      currentName = user.displayName || "User";
+
+      // Listen for accepted matches → populate sidebar
+      listenToMatches(currentUid, async (matches) => {
+        const accepted = matches.filter(m => m.status === "accepted");
+        await renderSidebar(accepted);
+
+        // Auto-open match from URL param
+        const params = new URLSearchParams(window.location.search);
+        const matchParam = params.get("match");
+        if (matchParam && !activeMatchId) {
+          const target = accepted.find(m => m.matchId === matchParam);
+          if (target) openChat(target);
+        }
+      });
+
+      document.getElementById("page-loader").classList.add("d-none");
+      document.getElementById("chat-container").classList.remove("d-none");
+    });
+
+    /* ────── Sidebar ────── */
+    async function renderSidebar(matches) {
+      const el = document.getElementById("chat-contact-list");
+      if (!matches.length) {
+        el.innerHTML = `<div class="text-center text-muted py-4 small">No accepted matches yet.<br><a href="matches.html">Find matches first!</a></div>`;
+        return;
+      }
+
+      // Cache profiles
+      for (const m of matches) {
+        for (const uid of m.users) {
+          if (!profileCache[uid]) profileCache[uid] = await getUserProfile(uid);
+        }
+      }
+
+      el.innerHTML = matches.map(m => {
+        const otherUid  = m.users.find(u => u !== currentUid);
+        const other     = profileCache[otherUid] || {};
+        const myTeach   = m.skillsExchange?.[currentUid] || [];
+        const theirTeach = m.skillsExchange?.[otherUid]  || [];
+        return `
+          <div class="chat-contact ${activeMatchId===m.matchId?'active':''}" data-matchid="${m.matchId}">
+            <div class="d-flex align-items-center gap-2">
+              <div class="match-avatar" style="width:38px;height:38px;font-size:.9rem;flex-shrink:0">${(other.displayName||"?")[0].toUpperCase()}</div>
+              <div class="overflow-hidden">
+                <div class="fw-bold text-truncate">${other.displayName || "User"}</div>
+                <div class="small text-muted text-truncate">${myTeach.join(", ")} ↔ ${theirTeach.join(", ")}</div>
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+
+      // Click handlers
+      el.querySelectorAll(".chat-contact").forEach(c => {
+        c.addEventListener("click", () => {
+          const mid = c.dataset.matchid;
+          const m   = matches.find(x => x.matchId === mid);
+          if (m) openChat(m);
+          // Update active state
+          el.querySelectorAll(".chat-contact").forEach(x => x.classList.remove("active"));
+          c.classList.add("active");
+        });
+      });
+    }
+
+    /* ────── Open a chat room ────── */
+    function openChat(match) {
+      // Stop previous listener
+      if (activeChatRef) stopListeningToChat(activeChatRef);
+
+      activeMatchId = match.matchId;
+      const otherUid = match.users.find(u => u !== currentUid);
+      const other    = profileCache[otherUid] || {};
+      const myTeach   = match.skillsExchange?.[currentUid] || [];
+      const theirTeach = match.skillsExchange?.[otherUid]  || [];
+
+      // Update header
+      document.getElementById("chat-partner-name").textContent   = other.displayName || "User";
+      document.getElementById("chat-partner-skills").textContent = `You teach: ${myTeach.join(", ")} · You learn: ${theirTeach.join(", ")}`;
+      const avatarEl = document.getElementById("chat-avatar");
+      avatarEl.textContent = (other.displayName||"?")[0].toUpperCase();
+      avatarEl.style.display = "flex";
+      document.getElementById("view-match-link").classList.remove("d-none");
+
+      // Clear messages
+      const msgEl = document.getElementById("chat-messages");
+      msgEl.innerHTML = "";
+
+      // Show input
+      document.getElementById("chat-input-area").classList.remove("d-none");
+
+      // Listen for messages
+      activeChatRef = listenToChat(activeMatchId, (msg) => {
+        appendMessage(msg);
+      });
+    }
+
+    /* ────── Append a message bubble ────── */
+    function appendMessage(msg) {
+      const msgEl  = document.getElementById("chat-messages");
+      const isMine = msg.senderId === currentUid;
+      const time   = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+
+      const bubble = document.createElement("div");
+      bubble.className = `chat-bubble ${isMine ? "sent" : "received"}`;
+      bubble.innerHTML = `
+        ${!isMine ? `<div class="small fw-bold mb-1" style="opacity:.8">${msg.senderName || "User"}</div>` : ""}
+        <div>${escapeHtml(msg.text)}</div>
+        <span class="bubble-time">${time}</span>`;
+      msgEl.appendChild(bubble);
+      msgEl.scrollTop = msgEl.scrollHeight;
+    }
+
+    /* ────── Send message ────── */
+    document.getElementById("send-btn").addEventListener("click", doSend);
+    document.getElementById("msg-input").addEventListener("keypress", e => { if (e.key === "Enter") doSend(); });
+
+    function doSend() {
+      const input = document.getElementById("msg-input");
+      const text  = input.value.trim();
+      if (!text || !activeMatchId) return;
+      sendMessage(activeMatchId, currentUid, currentName, text);
+      input.value = "";
+      input.focus();
+    }
+
+    /* ────── Helpers ────── */
+    function escapeHtml(str) {
+      const d = document.createElement("div");
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    document.getElementById("logout-btn").addEventListener("click", async () => { await logoutUser(); window.location.href = "index.html"; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>My Skills - SwapSkills</title>
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Raleway:wght@300;400;500;600;700;800;900&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/swapskills.css" rel="stylesheet">
+</head>
+<body class="index-page">
+
+  <!-- Header -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <img src="assets/img/logo.png" alt=""><h1 class="sitename">Swap<span class="text-accent">Skills</span></h1>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+          <li><a href="skills.html" class="active"><i class="bi bi-tools me-1"></i>My Skills</a></li>
+          <li><a href="matches.html"><i class="bi bi-arrow-left-right me-1"></i>Matches</a></li>
+          <li><a href="chat.html"><i class="bi bi-chat-dots me-1"></i>Chat</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      <div class="d-flex align-items-center gap-2">
+        <button onclick="SS.toggleDarkMode()" class="btn btn-sm btn-outline-secondary rounded-circle" title="Dark Mode"><i class="bi bi-moon-fill"></i></button>
+        <button id="logout-btn" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Loader -->
+    <div id="page-loader" class="text-center py-5 mt-5">
+      <div class="spinner-border text-accent" role="status"><span class="visually-hidden">Loading…</span></div>
+    </div>
+
+    <div id="page-content" class="d-none">
+
+      <section class="section py-4 mt-3">
+        <div class="container">
+          <div class="row align-items-center mb-4">
+            <div class="col"><h2 data-aos="fade-right"><i class="bi bi-tools me-2 text-accent"></i>Skill Management</h2><p class="text-muted">Add the skills you can teach and the skills you want to learn.</p></div>
+          </div>
+
+          <div class="row gy-4">
+
+            <!-- Add Skill Form -->
+            <div class="col-lg-5" data-aos="fade-up">
+              <div class="card rounded-4 shadow-sm">
+                <div class="card-header bg-transparent border-0 pt-4 px-4"><h5><i class="bi bi-plus-circle me-2 text-accent"></i>Add a Skill</h5></div>
+                <div class="card-body px-4 pb-4">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Skill Name</label>
+                    <input type="text" class="form-control" id="skill-name" placeholder="e.g. Python, Guitar, Spanish…">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Category</label>
+                    <select class="form-select" id="skill-category"></select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Proficiency Level</label>
+                    <select class="form-select" id="skill-level">
+                      <option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Expert</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Short Description <small class="text-muted">(optional)</small></label>
+                    <textarea class="form-control" id="skill-desc" rows="2" placeholder="Brief note about your skill…"></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Type</label>
+                    <div class="d-flex gap-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="skillType" id="type-offered" value="offered" checked>
+                        <label class="form-check-label" for="type-offered">I can teach this</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="skillType" id="type-wanted" value="wanted">
+                        <label class="form-check-label" for="type-wanted">I want to learn this</label>
+                      </div>
+                    </div>
+                  </div>
+                  <button id="add-skill-btn" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i>Add Skill</button>
+                  <div id="skill-alert" class="alert d-none mt-2 mb-0 py-2 small"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Skills -->
+            <div class="col-lg-7" data-aos="fade-up" data-aos-delay="100">
+
+              <!-- Offered -->
+              <div class="card rounded-4 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                  <h5><i class="bi bi-arrow-up-circle-fill me-2 text-accent"></i>Skills I Offer <span id="count-offered" class="badge bg-accent-light text-accent ms-1">0</span></h5>
+                </div>
+                <div class="card-body px-4 pb-4" id="list-offered">
+                  <div class="empty-state py-3"><i class="bi bi-lightbulb"></i><p>No offered skills yet.</p></div>
+                </div>
+              </div>
+
+              <!-- Wanted -->
+              <div class="card rounded-4 shadow-sm">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                  <h5><i class="bi bi-arrow-down-circle-fill me-2 text-warning"></i>Skills I Want to Learn <span id="count-wanted" class="badge bg-warning bg-opacity-25 text-warning ms-1">0</span></h5>
+                </div>
+                <div class="card-body px-4 pb-4" id="list-wanted">
+                  <div class="empty-state py-3"><i class="bi bi-book"></i><p>No wanted skills yet.</p></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="footer" class="footer dark-background"><div class="container copyright text-center mt-4"><p>&copy; 2025 <strong>SwapSkills</strong>. All Rights Reserved.</p></div></footer>
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script type="module" src="assets/js/firebase-app.js"></script>
+
+  <script type="module">
+    await new Promise(r => { const i = setInterval(() => { if (window.SS) { clearInterval(i); r(); } }, 50); });
+
+    const { observeAuth, logoutUser, getUserSkills, addSkill, removeSkill, SKILL_CATEGORIES } = SS;
+
+    let currentUid = null;
+    let skillsData = { offered: [], wanted: [] };
+
+    // Populate category dropdown
+    const catSel = document.getElementById("skill-category");
+    SKILL_CATEGORIES.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; catSel.appendChild(o); });
+
+    // Auth guard
+    observeAuth(async (user) => {
+      if (!user) { window.location.href = "auth.html"; return; }
+      currentUid = user.uid;
+      await loadSkills();
+      document.getElementById("page-loader").classList.add("d-none");
+      document.getElementById("page-content").classList.remove("d-none");
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    });
+
+    // Load & render
+    async function loadSkills() {
+      skillsData = await getUserSkills(currentUid);
+      render("list-offered", skillsData.offered, "offered", "count-offered");
+      render("list-wanted",  skillsData.wanted,  "wanted",  "count-wanted");
+    }
+
+    function render(containerId, skills, type, countId) {
+      const el = document.getElementById(containerId);
+      document.getElementById(countId).textContent = skills.length;
+      if (!skills.length) {
+        el.innerHTML = `<div class="empty-state py-3"><i class="bi bi-${type==='offered'?'lightbulb':'book'}"></i><p>No ${type} skills yet.</p></div>`;
+        return;
+      }
+      el.innerHTML = `<div class="d-flex flex-wrap gap-2">${skills.map(s =>
+        `<span class="skill-badge ${type==='wanted'?'wanted':''}">
+          ${s.name} <small>(${s.category} · ${s.level})</small>
+          <i class="bi bi-x-circle-fill remove-skill" data-id="${s.id}" data-type="${type}"></i>
+        </span>`
+      ).join("")}</div>`;
+
+      // Attach delete handlers
+      el.querySelectorAll(".remove-skill").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const skillId = btn.dataset.id;
+          const t       = btn.dataset.type;
+          const arr     = t === "offered" ? skillsData.offered : skillsData.wanted;
+          const obj     = arr.find(s => s.id === skillId);
+          if (!obj) return;
+          if (!confirm(`Remove "${obj.name}" from your ${t} skills?`)) return;
+          const res = await removeSkill(currentUid, obj, t);
+          if (res.success) await loadSkills();
+          else alert("Error: " + res.error);
+        });
+      });
+    }
+
+    // Add skill
+    document.getElementById("add-skill-btn").addEventListener("click", async () => {
+      const name  = document.getElementById("skill-name").value.trim();
+      const cat   = document.getElementById("skill-category").value;
+      const level = document.getElementById("skill-level").value;
+      const desc  = document.getElementById("skill-desc").value.trim();
+      const type  = document.querySelector('input[name="skillType"]:checked').value;
+
+      if (!name) return showSkillAlert("Please enter a skill name.", "danger");
+
+      const res = await addSkill(currentUid, { name, category: cat, level, description: desc }, type);
+      if (res.success) {
+        showSkillAlert(`"${name}" added to ${type} skills!`, "success");
+        document.getElementById("skill-name").value = "";
+        document.getElementById("skill-desc").value = "";
+        await loadSkills();
+      } else {
+        showSkillAlert("Error: " + res.error, "danger");
+      }
+    });
+
+    function showSkillAlert(msg, type) {
+      const el = document.getElementById("skill-alert");
+      el.textContent = msg;
+      el.className = `alert alert-${type} mt-2 mb-0 py-2 small`;
+      el.classList.remove("d-none");
+      setTimeout(() => el.classList.add("d-none"), 3000);
+    }
+
+    document.getElementById("logout-btn").addEventListener("click", async () => { await logoutUser(); window.location.href = "index.html"; });
+  </script>
+</body>
+</html>

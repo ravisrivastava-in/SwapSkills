@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Dashboard - SwapSkills</title>
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/swapskills.css" rel="stylesheet">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js">
+  <style>
+    .dash-tabs .nav-link{border-radius:50px;font-weight:600;padding:8px 22px;color:#555;transition:all .25s}
+    .dash-tabs .nav-link.active{background:var(--accent-color);color:#fff}
+    .dash-tabs .nav-link:not(.active):hover{background:rgba(16,188,105,.08)}
+    .dash-tabs .nav-link .bi{margin-right:5px}
+    #t-chat .chat-window{height:calc(100vh - 220px)}
+    #t-chat .chat-sidebar{height:calc(100vh - 220px);border-right:1px solid #e9ecef;overflow-y:auto}
+    #t-chat .chat-messages{height:calc(100vh - 340px)}
+    @media(max-width:768px){#t-chat .chat-sidebar{height:auto;max-height:200px;border-right:none;border-bottom:1px solid #e9ecef}#t-chat .chat-window{height:calc(100vh - 420px)}#t-chat .chat-messages{height:calc(100vh - 500px)}}
+    /* Dark mode FAB */
+    #dark-fab{position:fixed;bottom:24px;right:24px;z-index:1050;width:48px;height:48px;border-radius:50%;background:var(--accent-color);color:#fff;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:transform .2s,box-shadow .2s;cursor:pointer}
+    #dark-fab:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(0,0,0,.3)}
+    body.dark-mode #dark-fab{background:#fff;color:#1a1a2e}
+
+    /* Tab notification badges */
+    .tab-badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:20px;height:20px;border-radius:50%;
+      font-size:.7rem;font-weight:700;padding:0 5px;
+      margin-left:6px;line-height:1;
+    }
+    .tab-badge.chat-badge{background:#dc3545;color:#fff;}
+    .tab-badge.match-badge{background:#0dcaf0;color:#fff;}
+    .tab-badge.d-none{display:none!important;}
+
+    /* Fix: Header buttons must be clickable above all content */
+    #header { z-index: 1040; }
+    #header .btn, #header a { position: relative; z-index: 1041; cursor: pointer; }
+    #header #navmenu a { cursor: pointer; }
+    #logout-btn { pointer-events: auto !important; }
+
+    /* Chat sidebar contact badge */
+    .contact-badge{
+      min-width:18px;height:18px;border-radius:50%;
+      background:#dc3545;color:#fff;font-size:.65rem;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;padding:0 4px;
+    }
+  </style>
+</head>
+<body class="index-page">
+
+  <!-- Header -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <img src="assets/img/logo.png" alt=""><h1 class="sitename">Swap<span class="text-accent">Skills</span></h1>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul><li><a href="index.html" id="home-link"><i class="bi bi-house me-1"></i>Home</a></li></ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      <button id="logout-btn" class="btn btn-outline-danger btn-sm ms-3"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Auto-logout alert -->
+    <div id="auto-logout-alert" class="alert alert-warning alert-dismissible text-center d-none m-3 mt-5" role="alert">
+      <i class="bi bi-clock-history me-1"></i>Logged out due to inactivity.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Loader -->
+    <div id="page-loader" class="text-center py-5 mt-5">
+      <div class="spinner-border text-accent" role="status"></div>
+      <p class="mt-2 text-muted" id="loader-msg">Connecting…</p>
+    </div>
+
+    <!-- App -->
+    <div id="app" class="d-none">
+      <!-- Welcome -->
+      <section class="py-3 mt-2"><div class="container d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h4 class="mb-0">Welcome, <span id="uname" class="text-accent">User</span>!</h4>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge bg-accent-light text-accent px-3 py-2 fs-6"><i class="bi bi-lightbulb me-1"></i>Offered: <b id="s-off">0</b></span>
+          <span class="badge bg-warning bg-opacity-25 text-warning px-3 py-2 fs-6"><i class="bi bi-book me-1"></i>Wanted: <b id="s-wan">0</b></span>
+          <span class="badge bg-info bg-opacity-25 text-info px-3 py-2 fs-6"><i class="bi bi-arrow-left-right me-1"></i>Matches: <b id="s-mat">0</b></span>
+          <span class="badge bg-warning bg-opacity-25 px-3 py-2 fs-6"><i class="bi bi-star-fill me-1 text-warning"></i><b id="s-rat">—</b></span>
+        </div>
+      </div></section>
+
+      <!-- Tabs -->
+      <section class="py-2"><div class="container">
+        <ul class="nav nav-pills dash-tabs flex-nowrap overflow-auto" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#t-dash"><i class="bi bi-speedometer2"></i>Dashboard</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-skills"><i class="bi bi-tools"></i>My Skills</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-match"><i class="bi bi-arrow-left-right"></i>Matches <span id="match-notif-badge" class="tab-badge match-badge d-none">0</span></button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#t-chat"><i class="bi bi-chat-dots"></i>Chat <span id="chat-notif-badge" class="tab-badge chat-badge d-none">0</span></button></li>
+        </ul>
+      </div></section>
+
+      <div class="tab-content">
+        <!-- TAB: DASHBOARD -->
+        <div class="tab-pane fade show active" id="t-dash"><section class="py-3"><div class="container"><div class="row gy-4">
+          <div class="col-lg-5"><div class="card rounded-4 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4"><h5><i class="bi bi-person-circle me-2 text-accent"></i>My Profile</h5></div>
+            <div class="card-body px-4">
+              <div class="mb-3"><label class="form-label fw-semibold">Name</label><input type="text" class="form-control" id="p-name" readonly></div>
+              <div class="mb-3"><label class="form-label fw-semibold">Email</label><input type="email" class="form-control" id="p-email" readonly></div>
+              <div class="mb-3"><label class="form-label fw-semibold">Bio</label><textarea class="form-control" id="p-bio" rows="3" placeholder="About you…"></textarea></div>
+              <button id="save-bio" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i>Save</button>
+              <div id="bio-msg" class="alert d-none mt-2 mb-0 py-2 small"></div>
+            </div>
+          </div></div>
+          <div class="col-lg-7"><div class="card rounded-4 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between"><h5><i class="bi bi-tools me-2 text-accent"></i>My Skills</h5><button class="btn btn-sm btn-outline-accent" onclick="document.querySelector('[data-bs-target=&quot;#t-skills&quot;]').click()">Manage</button></div>
+            <div class="card-body px-4">
+              <h6 class="fw-bold text-accent mb-2"><i class="bi bi-arrow-up-circle me-1"></i>I Offer</h6>
+              <div id="d-off" class="d-flex flex-wrap gap-2 mb-4"><span class="text-muted small">None yet.</span></div>
+              <h6 class="fw-bold text-warning mb-2"><i class="bi bi-arrow-down-circle me-1"></i>I Want</h6>
+              <div id="d-wan" class="d-flex flex-wrap gap-2"><span class="text-muted small">None yet.</span></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="card rounded-4 shadow-sm mt-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between"><h5><i class="bi bi-arrow-left-right me-2 text-accent"></i>Recent Matches</h5><button class="btn btn-sm btn-outline-accent" onclick="document.querySelector('[data-bs-target=&quot;#t-match&quot;]').click()">View All</button></div>
+          <div class="card-body px-4" id="rec-mat"><div class="empty-state py-3"><i class="bi bi-people"></i><h5>No matches</h5></div></div>
+        </div></div></section></div>
+
+        <!-- TAB: SKILLS -->
+        <div class="tab-pane fade" id="t-skills"><section class="py-3"><div class="container"><div class="row gy-4">
+          <div class="col-lg-5"><div class="card rounded-4 shadow-sm">
+            <div class="card-header bg-transparent border-0 pt-4 px-4"><h5><i class="bi bi-plus-circle me-2 text-accent"></i>Add Skill</h5></div>
+            <div class="card-body px-4 pb-4">
+              <div class="mb-3"><label class="form-label fw-semibold">Name</label><input type="text" class="form-control" id="sk-name" placeholder="e.g. Python, Guitar…"></div>
+              <div class="mb-3"><label class="form-label fw-semibold">Category</label><select class="form-select" id="sk-cat"></select></div>
+              <div class="mb-3"><label class="form-label fw-semibold">Level</label><select class="form-select" id="sk-lvl"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Expert</option></select></div>
+              <div class="mb-3"><label class="form-label fw-semibold">Description <small class="text-muted">(opt)</small></label><textarea class="form-control" id="sk-desc" rows="2"></textarea></div>
+              <div class="mb-3 d-flex gap-3"><div class="form-check"><input class="form-check-input" type="radio" name="skT" id="skT-o" value="offered" checked><label class="form-check-label" for="skT-o">I teach</label></div><div class="form-check"><input class="form-check-input" type="radio" name="skT" id="skT-w" value="wanted"><label class="form-check-label" for="skT-w">I want</label></div></div>
+              <button id="add-sk" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i>Add</button>
+              <div id="sk-msg" class="alert d-none mt-2 mb-0 py-2 small"></div>
+            </div>
+          </div></div>
+          <div class="col-lg-7">
+            <div class="card rounded-4 shadow-sm mb-4"><div class="card-header bg-transparent border-0 pt-4 px-4"><h5><i class="bi bi-arrow-up-circle-fill me-2 text-accent"></i>Offered <span id="c-off" class="badge bg-accent-light text-accent ms-1">0</span></h5></div><div class="card-body px-4 pb-4" id="l-off"><div class="empty-state py-3"><p>None yet.</p></div></div></div>
+            <div class="card rounded-4 shadow-sm"><div class="card-header bg-transparent border-0 pt-4 px-4"><h5><i class="bi bi-arrow-down-circle-fill me-2 text-warning"></i>Wanted <span id="c-wan" class="badge bg-warning bg-opacity-25 text-warning ms-1">0</span></h5></div><div class="card-body px-4 pb-4" id="l-wan"><div class="empty-state py-3"><p>None yet.</p></div></div></div>
+          </div>
+        </div></div></section></div>
+
+        <!-- TAB: MATCHES -->
+        <div class="tab-pane fade" id="t-match"><section class="py-3"><div class="container">
+          <div class="row mb-4"><div class="col-lg-5"><div class="input-group"><input type="text" class="form-control search-input" id="m-search" placeholder="Search by skill…"><button class="btn btn-accent" id="m-sbtn"><i class="bi bi-search"></i></button></div></div><div class="col-lg-3 mt-2 mt-lg-0"><button class="btn btn-outline-accent w-100" id="m-auto"><i class="bi bi-magic me-1"></i>Auto-Find</button></div></div>
+          <h5 id="m-title" class="mb-3">Potential Matches</h5>
+          <div class="row gy-4" id="m-pot"><div class="col-12"><div class="empty-state"><i class="bi bi-search"></i><h5>Click "Auto-Find"</h5></div></div></div>
+          <hr class="my-4"><h5><i class="bi bi-people-fill me-2 text-accent"></i>Your Requests</h5>
+          <ul class="nav nav-pills mb-3 mt-3"><li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#mp-p">Pending <span id="b-pen" class="badge bg-warning text-dark ms-1">0</span></button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#mp-a">Accepted <span id="b-acc" class="badge bg-success ms-1">0</span></button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#mp-r">Rejected <span id="b-rej" class="badge bg-danger ms-1">0</span></button></li></ul>
+          <div class="tab-content"><div class="tab-pane fade show active" id="mp-p"><div class="row gy-3" id="ml-pen"></div></div><div class="tab-pane fade" id="mp-a"><div class="row gy-3" id="ml-acc"></div></div><div class="tab-pane fade" id="mp-r"><div class="row gy-3" id="ml-rej"></div></div></div>
+
+          <!-- ALL MATCHES SECTION -->
+          <hr class="my-4"><h5><i class="bi bi-globe me-2 text-accent"></i>All Matches Overview</h5>
+          <div class="row gy-3 mt-2" id="ml-all"><div class="col-12 text-muted text-center py-3">No matches yet.</div></div>
+        </div></section></div>
+
+        <!-- TAB: CHAT -->
+        <div class="tab-pane fade" id="t-chat"><div class="container-fluid px-0"><div class="row g-0">
+          <div class="col-lg-3 col-md-4 chat-sidebar bg-white"><div class="p-3 border-bottom"><h6 class="mb-0 fw-bold"><i class="bi bi-chat-left-text me-1 text-accent"></i>Conversations</h6></div><div id="ch-list"><div class="text-center text-muted py-4 small">No conversations.</div></div></div>
+          <div class="col-lg-9 col-md-8"><div class="chat-window">
+            <div class="d-flex align-items-center gap-2 p-3 border-bottom bg-white"><div class="match-avatar" id="ch-av" style="width:40px;height:40px;font-size:1rem;display:none"></div><div><h6 class="mb-0 fw-bold" id="ch-name">Select a conversation</h6><small class="text-muted" id="ch-info"></small></div></div>
+            <div class="chat-messages" id="ch-msgs"><div class="empty-state mt-5"><i class="bi bi-chat-dots"></i><h5>Select a conversation</h5></div></div>
+            <div class="chat-input-area d-none" id="ch-inp"><div class="d-flex gap-2"><input type="text" class="form-control" id="ch-txt" placeholder="Type a message…" autocomplete="off"><button class="btn btn-accent" id="ch-send"><i class="bi bi-send-fill"></i></button></div></div>
+          </div></div>
+        </div></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Profile Setup Modal -->
+  <div class="modal fade" id="setupModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content rounded-4">
+    <div class="modal-header border-0 pb-0"><div class="text-center w-100"><i class="bi bi-person-badge fs-1 text-accent"></i><h4 class="mt-2 mb-0">Welcome!</h4><p class="text-muted">Set up your profile.</p></div></div>
+    <div class="modal-body px-4 px-md-5">
+      <div class="mb-3"><label class="form-label fw-semibold">Name</label><input type="text" class="form-control form-control-lg" id="su-name"></div>
+      <div class="mb-3"><label class="form-label fw-semibold">Bio</label><textarea class="form-control" id="su-bio" rows="3"></textarea></div><hr>
+      <h6 class="fw-bold mb-3"><i class="bi bi-arrow-up-circle me-1 text-accent"></i>Skill you teach</h6>
+      <div class="row g-2 mb-3"><div class="col-md-5"><input type="text" class="form-control" id="su-on" placeholder="e.g. Python"></div><div class="col-md-4"><select class="form-select" id="su-oc"></select></div><div class="col-md-3"><select class="form-select" id="su-ol"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Expert</option></select></div></div>
+      <h6 class="fw-bold mb-3"><i class="bi bi-arrow-down-circle me-1 text-warning"></i>Skill you want</h6>
+      <div class="row g-2 mb-3"><div class="col-md-5"><input type="text" class="form-control" id="su-wn" placeholder="e.g. Guitar"></div><div class="col-md-4"><select class="form-select" id="su-wc"></select></div><div class="col-md-3"><select class="form-select" id="su-wl"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Expert</option></select></div></div>
+      <div id="su-msg" class="alert d-none py-2 small"></div>
+    </div>
+    <div class="modal-footer border-0 px-4 pb-4"><button class="btn btn-secondary" id="su-skip">Skip</button><button class="btn btn-accent px-4" id="su-save"><i class="bi bi-check-circle me-1"></i>Save</button></div>
+  </div></div></div>
+
+  <!-- Session Modal -->
+  <div class="modal fade" id="sessModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content rounded-4">
+    <div class="modal-header border-0"><h5><i class="bi bi-calendar-event me-2 text-accent"></i>Schedule</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><input type="hidden" id="sess-mid"><div class="mb-3"><label class="form-label">Date & Time</label><input type="datetime-local" class="form-control" id="sess-dt"></div><div class="mb-3"><label class="form-label">Duration (min)</label><input type="number" class="form-control" id="sess-dur" value="60" min="15" step="15"></div><div class="mb-3"><label class="form-label">Topic</label><input type="text" class="form-control" id="sess-top"></div></div>
+    <div class="modal-footer border-0"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-accent" id="sess-save">Schedule</button></div>
+  </div></div></div>
+
+  <!-- Rate Modal -->
+  <div class="modal fade" id="rateModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content rounded-4">
+    <div class="modal-header border-0"><h5><i class="bi bi-star me-2 text-warning"></i>Rate</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><input type="hidden" id="rt-uid"><input type="hidden" id="rt-mid"><input type="hidden" id="rt-val" value="0"><div class="rating-stars-input text-center mb-3" id="rt-stars"><i class="bi bi-star" data-v="1"></i><i class="bi bi-star" data-v="2"></i><i class="bi bi-star" data-v="3"></i><i class="bi bi-star" data-v="4"></i><i class="bi bi-star" data-v="5"></i></div><div class="mb-3"><label class="form-label">Feedback</label><textarea class="form-control" id="rt-fb" rows="3"></textarea></div></div>
+    <div class="modal-footer border-0"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-accent" id="rt-submit">Submit</button></div>
+  </div></div></div>
+
+  <!-- Dark Mode FAB (bottom-right) -->
+  <button id="dark-fab" title="Toggle Dark Mode"><i class="bi bi-moon-stars-fill"></i></button>
+
+  <!-- Footer -->
+  <footer id="footer" class="footer dark-background"><div class="container copyright text-center mt-4"><p>&copy; 2025 <strong>SwapSkills</strong>.</p></div></footer>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="env.js" onerror="/* expected on production */"></script>
+  <script type="module" src="assets/js/firebase-app.js"></script>
+  <script type="module">
+    import { init } from './assets/js/dashboard-app.js';
+    init();
+  </script>
+</body>
+</html>

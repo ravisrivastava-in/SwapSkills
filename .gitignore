@@ -1,0 +1,13 @@
+# Local Firebase config — NEVER commit this
+env.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node
+node_modules/

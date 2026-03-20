@@ -13,7 +13,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import {
   getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
   signInWithEmailAndPassword, signOut, updateProfile,
-  GoogleAuthProvider, signInWithRedirect, getRedirectResult,
+  GoogleAuthProvider,
   signInAnonymously
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
@@ -70,9 +70,6 @@ const rtdb = getDatabase(app);
 
 const CATS = ["Technology","Design","Language","Music","Business","Science","Art","Fitness","Cooking","Photography","Writing","Other"];
 
-/* ── Handle redirect result (for Google sign-in) ── */
-let _redirectResultPromise = getRedirectResult(auth).catch(() => null);
-
 /* ── AUTH ── */
 function observeAuth(cb) { return onAuthStateChanged(auth, cb); }
 
@@ -100,33 +97,28 @@ async function logoutUser() {
 }
 
 /**
- * Google Sign-In:
- * - Production: uses signInWithRedirect (no popup showing API key)
- * - Localhost: uses signInWithPopup (redirect doesn't work on localhost)
+ * Google Sign-In using signInWithPopup.
+ * Note: signInWithRedirect does NOT work on non-Firebase-hosted domains
+ * (like Cloudflare Pages) due to cross-origin iframe restrictions.
+ * The API key visible in the popup URL is normal — Firebase API keys
+ * are public identifiers, security is enforced by Firebase Security Rules.
  */
 async function loginWithGoogle() {
   try {
+    const { signInWithPopup } = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js");
     const provider = new GoogleAuthProvider();
-    if (_isLocal) {
-      // Popup works on localhost
-      const { signInWithPopup } = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js");
-      const c = await signInWithPopup(auth, provider);
-      const u = c.user;
-      const s = await getDoc(doc(db, "users", u.uid));
-      if (!s.exists()) {
-        await setDoc(doc(db, "users", u.uid), {
-          uid: u.uid, displayName: u.displayName || "User",
-          email: u.email || "", bio: "",
-          skillsOffered: [], skillsWanted: [],
-          averageRating: 0, createdAt: serverTimestamp()
-        });
-      }
-      return { success: true, user: u };
-    } else {
-      // Redirect on production — no popup, no exposed API key
-      await signInWithRedirect(auth, provider);
-      return { success: true };
+    const c = await signInWithPopup(auth, provider);
+    const u = c.user;
+    const s = await getDoc(doc(db, "users", u.uid));
+    if (!s.exists()) {
+      await setDoc(doc(db, "users", u.uid), {
+        uid: u.uid, displayName: u.displayName || "User",
+        email: u.email || "", bio: "",
+        skillsOffered: [], skillsWanted: [],
+        averageRating: 0, createdAt: serverTimestamp()
+      });
     }
+    return { success: true, user: u };
   } catch (e) {
     if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") {
       return { success: false, error: "Sign-in cancelled" };
@@ -136,29 +128,10 @@ async function loginWithGoogle() {
 }
 
 /**
- * Process Google redirect result after page reloads (production only).
+ * No-op on all environments — redirect flow is not used.
  */
 async function handleGoogleRedirectResult() {
-  if (_isLocal) return { success: false, error: "N/A on localhost" };
-  try {
-    const result = await _redirectResultPromise;
-    if (result && result.user) {
-      const u = result.user;
-      const s = await getDoc(doc(db, "users", u.uid));
-      if (!s.exists()) {
-        await setDoc(doc(db, "users", u.uid), {
-          uid: u.uid, displayName: u.displayName || "User",
-          email: u.email || "", bio: "",
-          skillsOffered: [], skillsWanted: [],
-          averageRating: 0, createdAt: serverTimestamp()
-        });
-      }
-      return { success: true, user: u };
-    }
-    return { success: false, error: "No redirect result" };
-  } catch (e) {
-    return { success: false, error: e.message };
-  }
+  return { success: false, error: "N/A" };
 }
 
 async function loginAnonymously() {

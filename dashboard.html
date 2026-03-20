@@ -220,7 +220,7 @@
 
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/main.js"></script>
-  <script src="env.js" onerror="/* expected on production */"></script>
+  <script>if(["localhost","127.0.0.1"].includes(location.hostname)){document.write("<scr"+"ipt src=\"env.js\"></scr"+"ipt>")}</script>
   <script type="module" src="assets/js/firebase-app.js"></script>
   <script type="module">
     import { init } from './assets/js/dashboard-app.js';

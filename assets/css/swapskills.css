@@ -382,3 +382,88 @@ body.dark-mode .tab-content { background: transparent; }
 /* ── Table rows if any ── */
 body.dark-mode .table { color: #d4d4e0; }
 body.dark-mode .table-striped>tbody>tr:nth-of-type(odd) { background-color: rgba(255,255,255,.02); }
+
+/* =============================================================
+   RESPONSIVE AUTH BUTTON — icon on mobile, full text on desktop
+   ============================================================= */
+/* Desktop: show full text, hide icon */
+.auth-btn-full { display: inline-block !important; }
+.auth-btn-icon { display: none !important; }
+
+/* Mobile (<=768px): show icon only, hide text */
+@media (max-width: 768px) {
+  .auth-btn-full { display: none !important; }
+  .auth-btn-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    margin: 0 8px 0 0 !important;
+    border-radius: 50% !important;
+    font-size: 1.1rem;
+  }
+  #auth-buttons-header {
+    order: 2;
+    margin-right: 4px;
+  }
+
+  /* Dashboard page: logout button icon-only on mobile */
+  #logout-btn .bi { margin-right: 0 !important; }
+  #logout-btn {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+/* =============================================================
+   DASHBOARD HEADER — icon-only on mobile, text on desktop
+   ============================================================= */
+.dash-header-btn {
+  border-radius: 50px;
+  font-weight: 600;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+@media (max-width: 1200px) {
+  .dash-header-btn .dash-btn-text { display: none; }
+  .dash-header-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+  /* Force logo first, buttons after */
+  .header .logo { order: 1 !important; }
+  .header .dash-header-btn { order: 2 !important; }
+}
+
+/* =============================================================
+   MOBILE: Contact cards 3-in-a-row, Footer links side-by-side
+   ============================================================= */
+@media (max-width: 767px) {
+  /* Contact: 3 cards in single row */
+  #contact .row > [class*="col-lg-4"] {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+  }
+  #contact .info-item { padding: 12px 8px !important; }
+  #contact .info-item h3 { font-size: 0.8rem; }
+  #contact .info-item p { font-size: 0.7rem; margin-bottom: 0; }
+  #contact .info-item .fs-2 { font-size: 1.2rem !important; }
+
+  /* Footer: Quick Links (left) + Platform (right) in same row */
+  .footer-top .row {
+    flex-wrap: wrap;
+  }
+  .footer-top .col-lg-2.col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
